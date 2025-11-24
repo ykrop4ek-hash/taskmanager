@@ -1,35 +1,39 @@
-import datetime
-import uuid
+import argparse
+import commands
 
-class Task:
-    def __init__(self, title, description="", priority="medium", due_date=None, status="pending", task_id=None):
-        self.id = task_id or str(uuid.uuid4())
-        self.title = title
-        self.description = description
-        self.priority = priority
-        self.due_date = due_date or datetime.date.today().isoformat()
-        self.status = status
+def main():
+    parser = argparse.ArgumentParser(description="Task Manager CLI")
+    subparsers = parser.add_subparsers(title="Команды")
 
-    def to_dict(self):
-        return {
-            "id": self.id,
-            "title": self.title,
-            "description": self.description,
-            "priority": self.priority,
-            "due_date": self.due_date,
-            "status": self.status
-        }
+    # Добавление
+    add_parser = subparsers.add_parser("add", help="Добавить задачу")
+    add_parser.add_argument("--title", required=True, help="Название задачи")
+    add_parser.add_argument("--description", default="", help="Описание задачи")
+    add_parser.add_argument("--priority", choices=["low", "medium", "high"], default="medium", help="Приоритет")
+    add_parser.add_argument("--due_date", help="Срок (YYYY-MM-DD)")
+    add_parser.set_defaults(func=commands.add_task)
 
-    @staticmethod
-    def from_dict(data):
-        return Task(
-            title=data["title"],
-            description=data.get("description", ""),
-            priority=data.get("priority", "medium"),
-            due_date=data.get("due_date"),
-            status=data.get("status", "pending"),
-            task_id=data.get("id")
-        )
+    # Список
+    list_parser = subparsers.add_parser("list", help="Показать список задач")
+    list_parser.add_argument("--status", choices=["pending", "done"], help="Фильтр по статусу")
+    list_parser.add_argument("--priority", choices=["low", "medium", "high"], help="Фильтр по приоритету")
+    list_parser.set_defaults(func=commands.list_tasks)
 
-    def __str__(self):
-        return f"[{self.status.upper()}] {self.title} (Priority: {self.priority}, Due: {self.due_date})"
+    # Завершить
+    done_parser = subparsers.add_parser("done", help="Отметить задачу как выполненную")
+    done_parser.add_argument("--id", required=True, help="ID задачи")
+    done_parser.set_defaults(func=commands.mark_done)
+
+    # Удалить
+    del_parser = subparsers.add_parser("delete", help="Удалить задачу")
+    del_parser.add_argument("--id", required=True, help="ID задачи")
+    del_parser.set_defaults(func=commands.delete_task)
+
+    args = parser.parse_args()
+    if hasattr(args, "func"):
+        args.func(args)
+    else:
+        parser.print_help()
+
+if __name__ == "__main__":
+    main()
