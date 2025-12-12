@@ -1,7 +1,19 @@
 import argparse
 import commands
 
+"""
+Main module — точка входа CLI-приложения Task Manager.
+Использует argparse для обработки команд:
+add, list, delete, done.
+"""
+
 def main():
+
+    """
+        Основная функция запуска CLI-приложения.
+        Создаёт парсер команд, регистрирует подкоманды
+        и вызывает соответствующие функции из модуля commands.
+    """
     parser = argparse.ArgumentParser(description="Task Manager CLI")
     subparsers = parser.add_subparsers(title="Команды")
 
