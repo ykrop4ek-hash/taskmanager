@@ -70,88 +70,208 @@
            <div itemprop="articleBody">
              
   <h1>Исходный код storage</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span></span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Модуль storage — адаптер для работы с PostgreSQL, сохраняющий обратную совместимость</span>
+<span class="sd">со старым JSON-интерфейсом.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
 <span class="kn">from</span><span class="w"> </span><span class="nn">models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Task</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Модуль storage — отвечает за загрузку, сохранение и изменение списка задач</span>
-<span class="sd">в JSON-файле tasks.json.</span>
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="n">FILE_PATH</span> <span class="o">=</span> <span class="s2">&quot;tasks.json&quot;</span>
+<span class="c1"># Для импортов в тестах</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))))</span>
 
-<div class="viewcode-block" id="load_tasks">
-<a class="viewcode-back" href="../storage.html#storage.load_tasks">[документация]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">load_tasks</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Загружает задачи из файла.</span>
+<span class="c1"># Глобальная переменная для обратной совместимости (используется в тестах)</span>
+<span class="n">FILE_PATH</span> <span class="o">=</span> <span class="s2">&quot;tasks.json&quot;</span>  <span class="c1"># Оставляем для совместимости, но не используем для БД</span>
+
+
+<div class="viewcode-block" id="TaskRepository">
+<a class="viewcode-back" href="../storage.html#storage.TaskRepository">[документация]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TaskRepository</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Репозиторий для работы с задачами в PostgreSQL&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="TaskRepository.load_tasks">
+<a class="viewcode-back" href="../storage.html#storage.TaskRepository.load_tasks">[документация]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_tasks</span><span class="p">(</span><span class="n">filters</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Загружает задачи из базы данных.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            filters (dict, optional): Словарь фильтров.</span>
+<span class="sd">                Может содержать: status, priority, due_date</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            list[Task]: список объектов Task.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">FILE_PATH</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">[]</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">FILE_PATH</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
-    <span class="k">return</span> <span class="p">[</span><span class="n">Task</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">data</span><span class="p">]</span></div>
+        <span class="k">return</span> <span class="n">Task</span><span class="o">.</span><span class="n">get_all</span><span class="p">(</span><span class="n">filters</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TaskRepository.save_tasks">
+<a class="viewcode-back" href="../storage.html#storage.TaskRepository.save_tasks">[документация]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">save_tasks</span><span class="p">(</span><span class="n">tasks</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Сохраняет список задач в базу данных.</span>
+<span class="sd">        Каждая задача сохраняется отдельно.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            tasks (list[Task]): список задач.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">tasks</span><span class="p">:</span>
+            <span class="n">task</span><span class="o">.</span><span class="n">save</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="TaskRepository.add_task">
+<a class="viewcode-back" href="../storage.html#storage.TaskRepository.add_task">[документация]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_task</span><span class="p">(</span><span class="n">task</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Добавляет новую задачу в базу данных.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            task (Task): объект задачи.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Task: сохраненная задача (с обновленными created_at, updated_at).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">task</span><span class="o">.</span><span class="n">save</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="TaskRepository.delete_task">
+<a class="viewcode-back" href="../storage.html#storage.TaskRepository.delete_task">[документация]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">delete_task</span><span class="p">(</span><span class="n">task_id</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Удаляет задачу по ID.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            task_id (str): идентификатор задачи.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: True если задача удалена, False если не найдена.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Task</span><span class="o">.</span><span class="n">delete_by_id</span><span class="p">(</span><span class="n">task_id</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TaskRepository.mark_done">
+<a class="viewcode-back" href="../storage.html#storage.TaskRepository.mark_done">[документация]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">mark_done</span><span class="p">(</span><span class="n">task_id</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Отмечает задачу как выполненную.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            task_id (str): идентификатор задачи.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: True если задача обновлена, False если не найдена.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Task</span><span class="o">.</span><span class="n">mark_done_by_id</span><span class="p">(</span><span class="n">task_id</span><span class="p">)</span></div>
+</div>
+
+
+
+<span class="c1"># Создаем экземпляр репозитория</span>
+<span class="n">repository</span> <span class="o">=</span> <span class="n">TaskRepository</span><span class="p">()</span>
+
+
+<span class="c1"># ============================================================================</span>
+<span class="c1"># Функции для обратной совместимости с существующим кодом</span>
+<span class="c1"># Эти функции имеют ТОЧНО такие же имена, как в старом storage.py</span>
+<span class="c1"># ============================================================================</span>
+
+<div class="viewcode-block" id="load_tasks">
+<a class="viewcode-back" href="../storage.html#storage.load_tasks">[документация]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_tasks</span><span class="p">(</span><span class="n">filters</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Загружает задачи из базы данных.</span>
+<span class="sd">    Совместимость со старым интерфейсом.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        filters (dict, optional): Словарь фильтров.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list[Task]: список объектов Task.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">repository</span><span class="o">.</span><span class="n">load_tasks</span><span class="p">(</span><span class="n">filters</span><span class="p">)</span></div>
+
 
 
 <div class="viewcode-block" id="save_tasks">
 <a class="viewcode-back" href="../storage.html#storage.save_tasks">[документация]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">save_tasks</span><span class="p">(</span><span class="n">tasks</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Сохраняет список задач в JSON-файл.</span>
+<span class="sd">    Сохраняет список задач в базу данных.</span>
+<span class="sd">    Совместимость со старым интерфейсом.</span>
 
-<span class="sd">        Args:</span>
-<span class="sd">            tasks (list[Task]): список задач.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">FILE_PATH</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-        <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">([</span><span class="n">t</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tasks</span><span class="p">],</span> <span class="n">f</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+<span class="sd">    Args:</span>
+<span class="sd">        tasks (list[Task]): список задач.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">repository</span><span class="o">.</span><span class="n">save_tasks</span><span class="p">(</span><span class="n">tasks</span><span class="p">)</span></div>
+
 
 
 <div class="viewcode-block" id="add_task">
 <a class="viewcode-back" href="../storage.html#storage.add_task">[документация]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">add_task</span><span class="p">(</span><span class="n">task</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Добавляет новую задачу и сохраняет изменения.</span>
+<span class="sd">    Добавляет новую задачу в базу данных.</span>
+<span class="sd">    Совместимость со старым интерфейсом.</span>
 
-<span class="sd">        Args:</span>
-<span class="sd">            task (Task): объект задачи.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-    <span class="n">tasks</span> <span class="o">=</span> <span class="n">load_tasks</span><span class="p">()</span>
-    <span class="n">tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
-    <span class="n">save_tasks</span><span class="p">(</span><span class="n">tasks</span><span class="p">)</span></div>
+<span class="sd">    Args:</span>
+<span class="sd">        task (Task): объект задачи.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">repository</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span><span class="n">task</span><span class="p">)</span></div>
+
 
 
 <div class="viewcode-block" id="delete_task">
 <a class="viewcode-back" href="../storage.html#storage.delete_task">[документация]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">delete_task</span><span class="p">(</span><span class="n">task_id</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Удаляет задачу по ID.</span>
+<span class="sd">    Удаляет задачу по ID.</span>
+<span class="sd">    Совместимость со старым интерфейсом.</span>
 
-<span class="sd">        Args:</span>
-<span class="sd">            task_id (str): идентификатор задачи.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-    <span class="n">tasks</span> <span class="o">=</span> <span class="n">load_tasks</span><span class="p">()</span>
-    <span class="n">tasks</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tasks</span> <span class="k">if</span> <span class="n">t</span><span class="o">.</span><span class="n">id</span> <span class="o">!=</span> <span class="n">task_id</span><span class="p">]</span>
-    <span class="n">save_tasks</span><span class="p">(</span><span class="n">tasks</span><span class="p">)</span></div>
+<span class="sd">    Args:</span>
+<span class="sd">        task_id (str): идентификатор задачи.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">repository</span><span class="o">.</span><span class="n">delete_task</span><span class="p">(</span><span class="n">task_id</span><span class="p">)</span></div>
+
 
 
 <div class="viewcode-block" id="mark_done">
 <a class="viewcode-back" href="../storage.html#storage.mark_done">[документация]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">mark_done</span><span class="p">(</span><span class="n">task_id</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Отмечает задачу как выполненную.</span>
+<span class="sd">    Отмечает задачу как выполненную.</span>
+<span class="sd">    Совместимость со старым интерфейсом.</span>
 
-<span class="sd">        Args:</span>
-<span class="sd">            task_id (str): идентификатор задачи.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-    <span class="n">tasks</span> <span class="o">=</span> <span class="n">load_tasks</span><span class="p">()</span>
-    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tasks</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">t</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">task_id</span><span class="p">:</span>
-            <span class="n">t</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="s2">&quot;done&quot;</span>
-            <span class="k">break</span>
-    <span class="n">save_tasks</span><span class="p">(</span><span class="n">tasks</span><span class="p">)</span></div>
+<span class="sd">    Args:</span>
+<span class="sd">        task_id (str): идентификатор задачи.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">repository</span><span class="o">.</span><span class="n">mark_done</span><span class="p">(</span><span class="n">task_id</span><span class="p">)</span></div>
+
+
+
+<span class="c1"># ============================================================================</span>
+<span class="c1"># Вспомогательные функции для тестов и обратной совместимости</span>
+<span class="c1"># ============================================================================</span>
+
+<div class="viewcode-block" id="set_file_path">
+<a class="viewcode-back" href="../storage.html#storage.set_file_path">[документация]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">set_file_path</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Устанавливает путь к файлу (для обратной совместимости с тестами).</span>
+<span class="sd">    В PostgreSQL эта функция ничего не делает, но нужна для тестов.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        file_path (str): путь к файлу (игнорируется для БД).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">FILE_PATH</span>
+    <span class="n">FILE_PATH</span> <span class="o">=</span> <span class="n">file_path</span></div>
 
 </pre></div>
 

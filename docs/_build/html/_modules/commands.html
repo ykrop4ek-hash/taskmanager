@@ -70,22 +70,24 @@
            <div itemprop="articleBody">
              
   <h1>Исходный код commands</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Task</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">storage</span>
-
+<span></span><span class="c1"># commands.py</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Модуль commands — содержит функции, выполняющие команды CLI.</span>
 <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Task</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">storage</span>
+
 
 <div class="viewcode-block" id="add_task">
 <a class="viewcode-back" href="../commands.html#commands.add_task">[документация]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">add_task</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Создаёт новую задачу и сохраняет её.</span>
+<span class="sd">    Создаёт новую задачу и сохраняет её.</span>
 
-<span class="sd">        Args:</span>
-<span class="sd">            args (Namespace): аргументы CLI.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">    Args:</span>
+<span class="sd">        args (Namespace): аргументы CLI.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">task</span> <span class="o">=</span> <span class="n">Task</span><span class="p">(</span>
         <span class="n">title</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">title</span><span class="p">,</span>
         <span class="n">description</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">description</span><span class="p">,</span>
@@ -93,58 +95,125 @@
         <span class="n">due_date</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">due_date</span>
     <span class="p">)</span>
     <span class="n">storage</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;✅ Задача добавлена: </span><span class="si">{</span><span class="n">task</span><span class="o">.</span><span class="n">title</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;✅ Задача добавлена: </span><span class="si">{</span><span class="n">task</span><span class="o">.</span><span class="n">title</span><span class="si">}</span><span class="s2"> (ID: </span><span class="si">{</span><span class="n">task</span><span class="o">.</span><span class="n">id</span><span class="p">[:</span><span class="mi">8</span><span class="p">]</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span></div>
+
 
 
 <div class="viewcode-block" id="list_tasks">
 <a class="viewcode-back" href="../commands.html#commands.list_tasks">[документация]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">list_tasks</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Выводит список задач с возможностью фильтрации по статусу и приоритету.</span>
+<span class="sd">    Выводит список задач с возможностью фильтрации по статусу и приоритету.</span>
 
-<span class="sd">        Args:</span>
-<span class="sd">            args (Namespace): аргументы CLI.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-    <span class="n">tasks</span> <span class="o">=</span> <span class="n">storage</span><span class="o">.</span><span class="n">load_tasks</span><span class="p">()</span>
-    <span class="n">filtered</span> <span class="o">=</span> <span class="n">tasks</span>
+<span class="sd">    Args:</span>
+<span class="sd">        args (Namespace): аргументы CLI.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Создаем словарь фильтров из аргументов</span>
+    <span class="n">filters</span> <span class="o">=</span> <span class="p">{}</span>
 
-    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">status</span><span class="p">:</span>
-        <span class="n">filtered</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">filtered</span> <span class="k">if</span> <span class="n">t</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">args</span><span class="o">.</span><span class="n">status</span><span class="p">]</span>
-    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">priority</span><span class="p">:</span>
-        <span class="n">filtered</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">filtered</span> <span class="k">if</span> <span class="n">t</span><span class="o">.</span><span class="n">priority</span> <span class="o">==</span> <span class="n">args</span><span class="o">.</span><span class="n">priority</span><span class="p">]</span>
+    <span class="c1"># Проверяем, передан ли аргумент status (опциональный)</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s1">&#39;status&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">args</span><span class="o">.</span><span class="n">status</span><span class="p">:</span>
+        <span class="n">filters</span><span class="p">[</span><span class="s1">&#39;status&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">status</span>
 
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">filtered</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Нет задач по заданным критериям.&quot;</span><span class="p">)</span>
+    <span class="c1"># Проверяем, передан ли аргумент priority (опциональный)</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s1">&#39;priority&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">args</span><span class="o">.</span><span class="n">priority</span><span class="p">:</span>
+        <span class="n">filters</span><span class="p">[</span><span class="s1">&#39;priority&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">priority</span>
+
+    <span class="c1"># Загружаем задачи с фильтрами</span>
+    <span class="n">tasks</span> <span class="o">=</span> <span class="n">storage</span><span class="o">.</span><span class="n">load_tasks</span><span class="p">(</span><span class="n">filters</span><span class="p">)</span>
+
+    <span class="c1"># Если задач нет</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">tasks</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">filters</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;📭 Нет задач по заданным критериям.&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;📭 Список задач пуст.&quot;</span><span class="p">)</span>
         <span class="k">return</span>
 
-    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">filtered</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">t</span><span class="o">.</span><span class="n">id</span><span class="p">[:</span><span class="mi">8</span><span class="p">]</span><span class="si">}</span><span class="s2"> | </span><span class="si">{</span><span class="n">t</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+    <span class="c1"># Выводим заголовок</span>
+    <span class="k">if</span> <span class="n">filters</span><span class="p">:</span>
+        <span class="n">filter_info</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="s1">&#39;status&#39;</span> <span class="ow">in</span> <span class="n">filters</span><span class="p">:</span>
+            <span class="n">filter_info</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;статус: </span><span class="si">{</span><span class="n">filters</span><span class="p">[</span><span class="s1">&#39;status&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s1">&#39;priority&#39;</span> <span class="ow">in</span> <span class="n">filters</span><span class="p">:</span>
+            <span class="n">filter_info</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;приоритет: </span><span class="si">{</span><span class="n">filters</span><span class="p">[</span><span class="s1">&#39;priority&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;📋 Найдено задач: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">tasks</span><span class="p">)</span><span class="si">}</span><span class="s2"> (фильтры: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">filter_info</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;📋 Всего задач: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">tasks</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
+
+    <span class="c1"># Выводим каждую задачу</span>
+    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tasks</span><span class="p">:</span>
+        <span class="c1"># Форматируем дату выполнения</span>
+        <span class="n">due_str</span> <span class="o">=</span> <span class="s2">&quot;нет срока&quot;</span>
+        <span class="k">if</span> <span class="n">t</span><span class="o">.</span><span class="n">due_date</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">due_date</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">due_str</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">due_date</span>
+            <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">due_date</span><span class="p">,</span> <span class="s1">&#39;isoformat&#39;</span><span class="p">):</span>
+                <span class="n">due_str</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">due_date</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">due_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">due_date</span><span class="p">)</span>
+
+        <span class="c1"># Форматируем статус с иконкой</span>
+        <span class="n">status_icon</span> <span class="o">=</span> <span class="s2">&quot;✅&quot;</span> <span class="k">if</span> <span class="n">t</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="s2">&quot;done&quot;</span> <span class="k">else</span> <span class="s2">&quot;⏳&quot;</span>
+
+        <span class="c1"># Форматируем приоритет</span>
+        <span class="n">priority_icon</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;high&quot;</span><span class="p">:</span> <span class="s2">&quot;🔴&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;medium&quot;</span><span class="p">:</span> <span class="s2">&quot;🟡&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;low&quot;</span><span class="p">:</span> <span class="s2">&quot;🟢&quot;</span>
+        <span class="p">}</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">priority</span><span class="p">,</span> <span class="s2">&quot;⚪&quot;</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ID: </span><span class="si">{</span><span class="n">t</span><span class="o">.</span><span class="n">id</span><span class="p">[:</span><span class="mi">8</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">status_icon</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">t</span><span class="o">.</span><span class="n">title</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">priority_icon</span><span class="si">}</span><span class="s2"> Приоритет: </span><span class="si">{</span><span class="n">t</span><span class="o">.</span><span class="n">priority</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  📅 Срок: </span><span class="si">{</span><span class="n">due_str</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">t</span><span class="o">.</span><span class="n">description</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  📝 Описание: </span><span class="si">{</span><span class="n">t</span><span class="o">.</span><span class="n">description</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Добавляем информацию о дате создания, если есть</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="s1">&#39;created_at&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">t</span><span class="o">.</span><span class="n">created_at</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">created_at</span><span class="p">,</span> <span class="s1">&#39;strftime&#39;</span><span class="p">):</span>
+                <span class="n">created_str</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">created_at</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">created_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">created_at</span><span class="p">)[:</span><span class="mi">16</span><span class="p">]</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  🕐 Создана: </span><span class="si">{</span><span class="n">created_str</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span></div>
+
 
 
 <div class="viewcode-block" id="mark_done">
 <a class="viewcode-back" href="../commands.html#commands.mark_done">[документация]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">mark_done</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Отмечает задачу как выполненную.</span>
+<span class="sd">    Отмечает задачу как выполненную.</span>
 
-<span class="sd">        Args:</span>
-<span class="sd">            args (Namespace): аргументы CLI.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-    <span class="n">storage</span><span class="o">.</span><span class="n">mark_done</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;✅ Задача </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> отмечена как выполненная.&quot;</span><span class="p">)</span></div>
+<span class="sd">    Args:</span>
+<span class="sd">        args (Namespace): аргументы CLI.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">storage</span><span class="o">.</span><span class="n">mark_done</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">id</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;✅ Задача </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> отмечена как выполненная.&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;❌ Задача с ID </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> не найдена.&quot;</span><span class="p">)</span></div>
+
 
 
 <div class="viewcode-block" id="delete_task">
 <a class="viewcode-back" href="../commands.html#commands.delete_task">[документация]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">delete_task</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Удаляет задачу по ID.</span>
+<span class="sd">    Удаляет задачу по ID.</span>
 
-<span class="sd">        Args:</span>
-<span class="sd">            args (Namespace): аргументы CLI.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-    <span class="n">storage</span><span class="o">.</span><span class="n">delete_task</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;🗑️ Задача </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> удалена.&quot;</span><span class="p">)</span></div>
+<span class="sd">    Args:</span>
+<span class="sd">        args (Namespace): аргументы CLI.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">storage</span><span class="o">.</span><span class="n">delete_task</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">id</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;🗑️ Задача </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> удалена.&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;❌ Задача с ID </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> не найдена.&quot;</span><span class="p">)</span></div>
 
 </pre></div>
 

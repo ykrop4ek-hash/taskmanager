@@ -49,11 +49,20 @@
 <li class="toctree-l2"><a class="reference internal" href="commands.html">commands module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="models.html">models module</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">storage module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#storage.TaskRepository"><code class="docutils literal notranslate"><span class="pre">TaskRepository</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#storage.TaskRepository.add_task"><code class="docutils literal notranslate"><span class="pre">TaskRepository.add_task()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#storage.TaskRepository.delete_task"><code class="docutils literal notranslate"><span class="pre">TaskRepository.delete_task()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#storage.TaskRepository.load_tasks"><code class="docutils literal notranslate"><span class="pre">TaskRepository.load_tasks()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#storage.TaskRepository.mark_done"><code class="docutils literal notranslate"><span class="pre">TaskRepository.mark_done()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#storage.TaskRepository.save_tasks"><code class="docutils literal notranslate"><span class="pre">TaskRepository.save_tasks()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="#storage.add_task"><code class="docutils literal notranslate"><span class="pre">add_task()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#storage.delete_task"><code class="docutils literal notranslate"><span class="pre">delete_task()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#storage.load_tasks"><code class="docutils literal notranslate"><span class="pre">load_tasks()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#storage.mark_done"><code class="docutils literal notranslate"><span class="pre">mark_done()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#storage.save_tasks"><code class="docutils literal notranslate"><span class="pre">save_tasks()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#storage.set_file_path"><code class="docutils literal notranslate"><span class="pre">set_file_path()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -87,10 +96,101 @@
              
   <section id="module-storage">
 <span id="storage-module"></span><h1>storage module<a class="headerlink" href="#module-storage" title="Ссылка на этот заголовок"></a></h1>
+<p>Модуль storage — адаптер для работы с PostgreSQL, сохраняющий обратную совместимость
+со старым JSON-интерфейсом.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="storage.TaskRepository">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">storage.</span></span><span class="sig-name descname"><span class="pre">TaskRepository</span></span><a class="reference internal" href="_modules/storage.html#TaskRepository"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#storage.TaskRepository" title="Ссылка на это определение"></a></dt>
+<dd><p>Базовые классы: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Репозиторий для работы с задачами в PostgreSQL</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="storage.TaskRepository.add_task">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">add_task</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/storage.html#TaskRepository.add_task"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#storage.TaskRepository.add_task" title="Ссылка на это определение"></a></dt>
+<dd><p>Добавляет новую задачу в базу данных.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Параметры<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>task</strong> (<a class="reference internal" href="models.html#models.Task" title="models.Task"><em>Task</em></a>) – объект задачи.</p>
+</dd>
+<dt class="field-even">Результат<span class="colon">:</span></dt>
+<dd class="field-even"><p>сохраненная задача (с обновленными created_at, updated_at).</p>
+</dd>
+<dt class="field-odd">Тип результата<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="models.html#models.Task" title="models.Task">Task</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="storage.TaskRepository.delete_task">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">delete_task</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/storage.html#TaskRepository.delete_task"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#storage.TaskRepository.delete_task" title="Ссылка на это определение"></a></dt>
+<dd><p>Удаляет задачу по ID.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Параметры<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>task_id</strong> (<em>str</em>) – идентификатор задачи.</p>
+</dd>
+<dt class="field-even">Результат<span class="colon">:</span></dt>
+<dd class="field-even"><p>True если задача удалена, False если не найдена.</p>
+</dd>
+<dt class="field-odd">Тип результата<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="storage.TaskRepository.load_tasks">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load_tasks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/storage.html#TaskRepository.load_tasks"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#storage.TaskRepository.load_tasks" title="Ссылка на это определение"></a></dt>
+<dd><p>Загружает задачи из базы данных.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Параметры<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filters</strong> (<em>dict</em><em>, </em><em>optional</em>) – Словарь фильтров.
+Может содержать: status, priority, due_date</p>
+</dd>
+<dt class="field-even">Результат<span class="colon">:</span></dt>
+<dd class="field-even"><p>список объектов Task.</p>
+</dd>
+<dt class="field-odd">Тип результата<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[<a class="reference internal" href="models.html#models.Task" title="models.Task">Task</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="storage.TaskRepository.mark_done">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">mark_done</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/storage.html#TaskRepository.mark_done"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#storage.TaskRepository.mark_done" title="Ссылка на это определение"></a></dt>
+<dd><p>Отмечает задачу как выполненную.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Параметры<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>task_id</strong> (<em>str</em>) – идентификатор задачи.</p>
+</dd>
+<dt class="field-even">Результат<span class="colon">:</span></dt>
+<dd class="field-even"><p>True если задача обновлена, False если не найдена.</p>
+</dd>
+<dt class="field-odd">Тип результата<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="storage.TaskRepository.save_tasks">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">save_tasks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tasks</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/storage.html#TaskRepository.save_tasks"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#storage.TaskRepository.save_tasks" title="Ссылка на это определение"></a></dt>
+<dd><p>Сохраняет список задач в базу данных.
+Каждая задача сохраняется отдельно.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Параметры<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>tasks</strong> (<em>list</em><em>[</em><a class="reference internal" href="models.html#models.Task" title="models.Task"><em>Task</em></a><em>]</em>) – список задач.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="storage.add_task">
 <span class="sig-prename descclassname"><span class="pre">storage.</span></span><span class="sig-name descname"><span class="pre">add_task</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/storage.html#add_task"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#storage.add_task" title="Ссылка на это определение"></a></dt>
-<dd><p>Добавляет новую задачу и сохраняет изменения.</p>
+<dd><p>Добавляет новую задачу в базу данных.
+Совместимость со старым интерфейсом.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Параметры<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>task</strong> (<a class="reference internal" href="models.html#models.Task" title="models.Task"><em>Task</em></a>) – объект задачи.</p>
@@ -101,7 +201,8 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="storage.delete_task">
 <span class="sig-prename descclassname"><span class="pre">storage.</span></span><span class="sig-name descname"><span class="pre">delete_task</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/storage.html#delete_task"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#storage.delete_task" title="Ссылка на это определение"></a></dt>
-<dd><p>Удаляет задачу по ID.</p>
+<dd><p>Удаляет задачу по ID.
+Совместимость со старым интерфейсом.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Параметры<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>task_id</strong> (<em>str</em>) – идентификатор задачи.</p>
@@ -111,14 +212,18 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="storage.load_tasks">
-<span class="sig-prename descclassname"><span class="pre">storage.</span></span><span class="sig-name descname"><span class="pre">load_tasks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/storage.html#load_tasks"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#storage.load_tasks" title="Ссылка на это определение"></a></dt>
-<dd><p>Загружает задачи из файла.</p>
+<span class="sig-prename descclassname"><span class="pre">storage.</span></span><span class="sig-name descname"><span class="pre">load_tasks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/storage.html#load_tasks"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#storage.load_tasks" title="Ссылка на это определение"></a></dt>
+<dd><p>Загружает задачи из базы данных.
+Совместимость со старым интерфейсом.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Результат<span class="colon">:</span></dt>
-<dd class="field-odd"><p>список объектов Task.</p>
+<dt class="field-odd">Параметры<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filters</strong> (<em>dict</em><em>, </em><em>optional</em>) – Словарь фильтров.</p>
 </dd>
-<dt class="field-even">Тип результата<span class="colon">:</span></dt>
-<dd class="field-even"><p>list[<a class="reference internal" href="models.html#models.Task" title="models.Task">Task</a>]</p>
+<dt class="field-even">Результат<span class="colon">:</span></dt>
+<dd class="field-even"><p>список объектов Task.</p>
+</dd>
+<dt class="field-odd">Тип результата<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[<a class="reference internal" href="models.html#models.Task" title="models.Task">Task</a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -126,7 +231,8 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="storage.mark_done">
 <span class="sig-prename descclassname"><span class="pre">storage.</span></span><span class="sig-name descname"><span class="pre">mark_done</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/storage.html#mark_done"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#storage.mark_done" title="Ссылка на это определение"></a></dt>
-<dd><p>Отмечает задачу как выполненную.</p>
+<dd><p>Отмечает задачу как выполненную.
+Совместимость со старым интерфейсом.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Параметры<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>task_id</strong> (<em>str</em>) – идентификатор задачи.</p>
@@ -137,10 +243,23 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="storage.save_tasks">
 <span class="sig-prename descclassname"><span class="pre">storage.</span></span><span class="sig-name descname"><span class="pre">save_tasks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tasks</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/storage.html#save_tasks"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#storage.save_tasks" title="Ссылка на это определение"></a></dt>
-<dd><p>Сохраняет список задач в JSON-файл.</p>
+<dd><p>Сохраняет список задач в базу данных.
+Совместимость со старым интерфейсом.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Параметры<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>tasks</strong> (<em>list</em><em>[</em><a class="reference internal" href="models.html#models.Task" title="models.Task"><em>Task</em></a><em>]</em>) – список задач.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="storage.set_file_path">
+<span class="sig-prename descclassname"><span class="pre">storage.</span></span><span class="sig-name descname"><span class="pre">set_file_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/storage.html#set_file_path"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#storage.set_file_path" title="Ссылка на это определение"></a></dt>
+<dd><p>Устанавливает путь к файлу (для обратной совместимости с тестами).
+В PostgreSQL эта функция ничего не делает, но нужна для тестов.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Параметры<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>file_path</strong> (<em>str</em>) – путь к файлу (игнорируется для БД).</p>
 </dd>
 </dl>
 </dd></dl>
